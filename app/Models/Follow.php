@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,7 +35,7 @@ class Follow extends Model
 
         return static::firstOrCreate([
             'follower_profile_id' => $follower->id,
-            'following_profile_id' => $following->id
+            'following_profile_id' => $following->id,
         ]);
     }
 

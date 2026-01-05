@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Components;
 
 use Closure;
@@ -11,7 +13,7 @@ class Layout extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(public string $title = "PIXL")
+    public function __construct(public string $title = 'PIXL')
     {
         //
     }

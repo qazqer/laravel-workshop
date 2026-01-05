@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\Profile;
 use App\Models\Post;
+use App\Models\Profile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('allow a profile to publish a post', function () {
+test('allow a profile to publish a post', function (): void {
     $profile = Profile::factory()->create();
 
     $post = Post::publish($profile, 'This is my first post!');
@@ -21,7 +21,7 @@ test('allow a profile to publish a post', function () {
         ->toBeNull();
 });
 
-test('can reply to post', function () {
+test('can reply to post', function (): void {
     $original = Post::factory()->create();
 
     $replier = Profile::factory()->create();
@@ -33,7 +33,7 @@ test('can reply to post', function () {
         ->toHaveCount(1);
 });
 
-test('can have many replies', function () {
+test('can have many replies', function (): void {
     $original = Post::factory()->create();
     $replies = Post::factory()->count(4)->reply($original)->create();
 
@@ -45,7 +45,7 @@ test('can have many replies', function () {
         ->toBeTrue();
 });
 
-test('create plain repost', function () {
+test('create plain repost', function (): void {
     $original = Post::factory()->create();
 
     $repostProfile = Profile::factory()->create();
@@ -59,7 +59,7 @@ test('create plain repost', function () {
         ->toBeNull();
 });
 
-test('can have many reposts', function () {
+test('can have many reposts', function (): void {
     $original = Post::factory()->create();
     $reposts = Post::factory()->count(4)->repost($original)->create();
 
@@ -71,7 +71,7 @@ test('can have many reposts', function () {
         ->toBeTrue();
 });
 
-test('create quoted repost', function () {
+test('create quoted repost', function (): void {
     $content = 'Check this out!';
     $original = Post::factory()->create();
 
@@ -85,17 +85,17 @@ test('create quoted repost', function () {
         ->toBe($content);
 });
 
-test('prevent duplicate reposts', function () {
+test('prevent duplicate reposts', function (): void {
     $original = Post::factory()->create();
     $profile = Profile::factory()->create();
 
-    $r1 = Post::repost($profile, $original);
+    $post = Post::repost($profile, $original);
     $r2 = Post::repost($profile, $original);
 
-    expect($r1->id)->toBe($r2->id);
+    expect($post->id)->toBe($r2->id);
 });
 
-test('remove a repost', function () {
+test('remove a repost', function (): void {
     $original = Post::factory()->create();
     $profile = Post::factory()->repost($original)->create()->profile;
 

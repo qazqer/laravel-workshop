@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,7 +32,7 @@ class Like extends Model
         ]);
     }
 
-    public static function removeLike(Profile $profile, Post $post)
+    public static function removeLike(Profile $profile, Post $post): bool
     {
         return static::where('profile_id', $profile->id)
             ->where('post_id', $post->id)
