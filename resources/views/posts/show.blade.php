@@ -1,7 +1,4 @@
 <x-layout title="PIXL - Feed">
-
-    @include('partials.navigation ')
-
     <!-- Content -->
     <main class="-mx-4 flex grow flex-col gap-4 overflow-y-auto px-4 py-4">
         <!-- Navigation -->
@@ -19,23 +16,9 @@
             </nav>
         </div>
 
-        <!-- Post prompt -->
-        <div class="border-pixl-light/10 mt-8 flex items-start gap-4 border-b pb-4">
-            <a href="/profile" class="shrink-0">
-                <img src="images/adrian.png" alt="Avatar of Adrian" class="size-10 object-cover" />
-            </a>
-            @include('partials.post-form', [
-                'labelText' => 'Post body',
-                'fieldName' => 'post',
-                'placeholder' => "What's up _adrian?",
-            ])
-        </div>
         <!-- Feed -->
         <ol class="mt-4">
-            @foreach ($feedItems as $item)
-                <!-- Feed item -->
-                @include('partials.feed-item', compact('item'))
-            @endforeach
+            <x-post :post="$post" :show-replies="true" />
         </ol>
 
         <footer class="mt-30 ml-14">
@@ -45,6 +28,4 @@
             <div class="h-20 bg-[url('/resources/images/white-noise.gif')]"></div>
         </footer>
     </main>
-
-    @include('partials.aside')
 </x-layout>
