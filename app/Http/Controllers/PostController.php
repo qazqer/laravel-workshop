@@ -11,32 +11,40 @@ use App\Models\Profile;
 use App\Queries\PostThreadQuery;
 use App\Queries\TimelineQuery;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class PostController extends Controller
 {
-    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function index()
     {
         $profile = Auth::user()->profile;
+
         $posts = TimelineQuery::forViewer($profile)->get();
 
-        return view('posts.index', ['profile' => $profile, 'posts' => $posts]);
+        return Inertia::render('Posts/Index', [
+            'profile' => $profile->toResource(),
+            'posts' => $posts->toResourceCollection()
+        ]);
     }
 
-    public function show(Profile $profile, Post $post): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function show(Profile $profile, Post $post)
     {
 
         $post = PostThreadQuery::for($post, Auth::user()?->profile)->load();
 
-        return view('posts.show', ['post' => $post]);
+        return Inertia::render('Posts/Show', [
+            'post' => $post->toResource(),
+        ]);
     }
 
     public function store(CreatePostRequest $createPostRequest): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
     {
+
         $profile = Auth::user()->profile;
 
         Post::publish($profile, $createPostRequest->content);
 
-        return redirect(route('posts.index'));
+        return to_route('posts.index');
     }
 
     public function repost(Profile $profile, Post $post): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
@@ -44,7 +52,7 @@ class PostController extends Controller
         $currentProfile = Auth::user()->profile;
         Post::repost($currentProfile, $post);
 
-        return redirect(route('posts.index'));
+        return to_route('posts.index');
     }
 
     public function reply(Profile $profile, Post $post, CreatePostRequest $createPostRequest): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
@@ -52,7 +60,7 @@ class PostController extends Controller
         $currentProfile = Auth::user()->profile;
         Post::reply($currentProfile, $post, $createPostRequest->content);
 
-        return redirect(route('posts.index'));
+        return back();
     }
 
     public function quote(Profile $profile, Post $post, CreatePostRequest $createPostRequest): \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
@@ -60,7 +68,7 @@ class PostController extends Controller
         $currentProfile = Auth::user()->profile;
         Post::repost($currentProfile, $post, $createPostRequest->content);
 
-        return redirect(route('posts.index'));
+        return to_route('posts.index');
     }
 
     public function like(Profile $profile, Post $post)
@@ -68,7 +76,7 @@ class PostController extends Controller
         $currentProfile = Auth::user()->profile;
         $like = Like::createLike($currentProfile, $post);
 
-        return response()->json(['like' => $like]);
+        return back();
     }
 
     public function unlike(Profile $profile, Post $post)
@@ -76,28 +84,18 @@ class PostController extends Controller
         $currentProfile = Auth::user()->profile;
         $success = Like::removeLike($currentProfile, $post);
 
-        return response()->json(['success' => $success]);
+        return back();
     }
 
     public function destroy(Profile $profile, Post $post)
     {
-        $currentProfile = Auth::user()->profile;
-        $success = false;
-
-        if ($currentProfile->id === $profile->id) {
-            $success = $post->delete() > 0;
-
-            return response()->json(['success' => $success]);
+        // Authorization
+        if (Auth::user()->can('update', $post)) {
+            $post->delete();
         }
 
-        $repost = $post->reposts()->where('profile_id', $currentProfile->id)->first();
+        $post->reposts()->where('profile_id', Auth::user()->profile->id)->first()?->delete();
 
-        if (! is_null($repost)) {
-            $success = $repost->delete() > 0;
-
-            return response()->json(['success' => $success]);
-        }
-
-        return response()->json(['success' => $success]);
+        return back();
     }
 }

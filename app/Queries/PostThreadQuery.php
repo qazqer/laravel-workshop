@@ -25,19 +25,20 @@ class PostThreadQuery
         $viewerId = $this->profile?->id ?? 0;
 
         $this->post->load([
-            'replies' => fn ($q) => $q->withCount(['likes', 'replies', 'reposts'])
+            'profile',
+            'replies' => fn($q) => $q->withCount(['likes', 'replies', 'reposts'])
                 ->withExists([
-                    'likes as has_liked' => fn ($q) => $q->where('profile_id', $viewerId),
-                    'reposts as has_reposted' => fn ($q) => $q->where('profile_id', $viewerId),
+                    'likes as has_liked' => fn($q) => $q->where('profile_id', $viewerId),
+                    'reposts as has_reposted' => fn($q) => $q->where('profile_id', $viewerId),
                 ])
                 ->with([
                     'profile',
                     'parent.profile',
-                    'replies' => fn ($q) => $q
+                    'replies' => fn($q) => $q
                         ->withCount(['likes', 'replies', 'reposts'])
                         ->withExists([
-                            'likes as has_liked' => fn ($q) => $q->where('profile_id', $viewerId),
-                            'reposts as has_reposted' => fn ($q) => $q->where('profile_id', $viewerId),
+                            'likes as has_liked' => fn($q) => $q->where('profile_id', $viewerId),
+                            'reposts as has_reposted' => fn($q) => $q->where('profile_id', $viewerId),
                         ])
                         ->with(['profile', 'parent.profile'])
                         ->oldest(),
@@ -45,8 +46,8 @@ class PostThreadQuery
                 ->oldest(),
         ])->loadCount(['likes', 'replies', 'reposts'])
             ->loadExists([
-                'likes as has_liked' => fn ($q) => $q->where('profile_id', $viewerId),
-                'reposts as has_reposted' => fn ($q) => $q->where('profile_id', $viewerId),
+                'likes as has_liked' => fn($q) => $q->where('profile_id', $viewerId),
+                'reposts as has_reposted' => fn($q) => $q->where('profile_id', $viewerId),
             ]);
 
         return $this->post;

@@ -59,4 +59,9 @@ class Profile extends Model
             'following_profile_id'
         );
     }
+
+    public function isFollowing(Profile $profile)
+    {
+        return $this->followings()->where('following_profile_id', $profile->id)->exists();
+    }
 }

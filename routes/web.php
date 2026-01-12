@@ -5,10 +5,10 @@ use App\Http\Controllers\ProfileController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use Inertia\Inertia;
 
-Route::get('/', function (): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View {
-    return view('welcome');
-});
+Route::get('/', HomeController::class)->middleware('guest');
 
 if (app()->isLocal()) {
     Route::get('/dev/login', function () {
@@ -25,7 +25,7 @@ if (app()->isLocal()) {
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect()->intended('/feed');
+        return redirect('/');
     });
 }
 
